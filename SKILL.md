@@ -97,10 +97,10 @@ subtitle: "对着抄作业就好了，一起变高效"
 将 Markdown 文档渲染为图片卡片。**必须激活 venv 环境运行**：
 
 ```bash
-source .venv/bin/activate && python scripts/render_xhs.py <markdown_file> [options]
+source .venv/bin/activate && python scripts/render_xhs.py <markdown_file> -o output/ [options]
 ```
 
-- 默认输出目录为当前工作目录
+- **所有生成文件统一输出到 `output/` 目录**（Markdown 文件也保存在此）
 - 生成的图片包括：封面（cover.png）和正文卡片（card_1.png, card_2.png, ...）
 - **渲染完成后，使用 `open` 命令打开所有生成的图片给用户预览**
 
@@ -138,10 +138,7 @@ source .venv/bin/activate && python scripts/render_xhs.py <markdown_file> [optio
 
 ```bash
 # 推荐：playful-geometric 主题 + 手动分隔分页
-source .venv/bin/activate && python scripts/render_xhs.py content.md -t playful-geometric -m separator
-
-# 自动切分分页
-source .venv/bin/activate && python scripts/render_xhs.py content.md -t playful-geometric -m auto-split
+source .venv/bin/activate && python scripts/render_xhs.py output/content.md -o output/ -t playful-geometric -m separator
 ```
 
 
@@ -150,7 +147,7 @@ source .venv/bin/activate && python scripts/render_xhs.py content.md -t playful-
 使用发布脚本将生成的图片发布到小红书：
 
 ```bash
-source .venv/bin/activate && python scripts/publish_xhs.py --title "笔记标题" --desc "笔记描述" --images cover.png card_1.png card_2.png
+source .venv/bin/activate && python scripts/publish_xhs.py --title "笔记标题" --desc "笔记描述" --images output/cover.png output/card_1.png output/card_2.png
 ```
 
 **前置条件**：
