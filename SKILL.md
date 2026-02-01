@@ -29,13 +29,16 @@ description: 小红书笔记素材创作技能。当用户需要创建小红书�
 - 使用良好的排版，段落清晰
 - 点缀少量 Emoji 增加可读性（每段 1-2 个即可）
 - 使用简短的句子和段落
+- 结尾加上：关注我，第一时间获取相关资讯
 - 结尾给出 SEO 友好的 Tags 标签（5-10 个相关标签）
 
 ### 第二步：生成 Markdown 文档
 
 **注意：这里生成的 Markdown 文档是用于渲染卡片的，必须专门生成，禁止直接使用上一步的笔记正文内容。**
 
-Markdown 文件，文件应包含：
+生成 Markdown 文件后，使用 `open <file>.md` 打开给用户预览确认。
+
+Markdown 文件应包含：
 
 1. YAML 头部元数据（封面信息）：
 ```yaml
@@ -91,21 +94,22 @@ subtitle: "对着抄作业就好了，一起变高效"
 
 ### 第三步：渲染图片卡片
 
-将 Markdown 文档渲染为图片卡片。使用以下脚本渲染：
+将 Markdown 文档渲染为图片卡片。**必须激活 venv 环境运行**：
 
 ```bash
-python scripts/render_xhs.py <markdown_file> [options]
+source .venv/bin/activate && python scripts/render_xhs.py <markdown_file> [options]
 ```
 
 - 默认输出目录为当前工作目录
 - 生成的图片包括：封面（cover.png）和正文卡片（card_1.png, card_2.png, ...）
+- **渲染完成后，使用 `open` 命令打开所有生成的图片给用户预览**
 
 #### 渲染参数（Python）
 
 | 参数 | 简写 | 说明 | 默认值 |
 |---|---|---|---|
 | `--output-dir` | `-o` | 输出目录 | 当前工作目录 |
-| `--theme` | `-t` | 排版主题 | `default` |
+| `--theme` | `-t` | 排版主题 | `playful-geometric` |
 | `--mode` | `-m` | 分页模式 | `separator` |
 | `--width` | `-w` | 图片宽度 | `1080` |
 | `--height` |  | 图片高度（`dynamic` 下为最小高度） | `1440` |
@@ -114,8 +118,8 @@ python scripts/render_xhs.py <markdown_file> [options]
 
 #### 排版主题（`--theme`）
 
-- `default`：默认简约浅灰渐变背景（`#f3f3f3 -> #f9f9f9`）
-- `playful-geometric`：活泼几何（Memphis）
+- `playful-geometric`：活泼几何（Memphis）**（默认推荐）**
+- `default`：简约浅灰渐变背景（`#f3f3f3 -> #f9f9f9`）
 - `neo-brutalism`：新粗野主义
 - `botanical`：植物园自然
 - `professional`：专业商务
@@ -133,36 +137,20 @@ python scripts/render_xhs.py <markdown_file> [options]
 #### 常用示例
 
 ```bash
-# 1) 默认主题 + 手动分隔分页
-python scripts/render_xhs.py content.md -m separator
+# 推荐：playful-geometric 主题 + 手动分隔分页
+source .venv/bin/activate && python scripts/render_xhs.py content.md -t playful-geometric -m separator
 
-# 2) 固定 1080x1440，自动缩放文字，尽量填满画面
-python scripts/render_xhs.py content.md -m auto-fit
-
-# 3) 自动切分分页（推荐：内容长短不稳定）
-python scripts/render_xhs.py content.md -m auto-split
-
-# 4) 动态高度（允许不同高度卡片）
-python scripts/render_xhs.py content.md -m dynamic --max-height 4320
-
-# 5) 切换主题
-python scripts/render_xhs.py content.md -t playful-geometric -m auto-split
+# 自动切分分页
+source .venv/bin/activate && python scripts/render_xhs.py content.md -t playful-geometric -m auto-split
 ```
 
-#### Node.js 渲染（可选）
-
-```bash
-node scripts/render_xhs.js content.md -t default -m separator
-```
-
-Node.js 参数与 Python 基本一致：`--output-dir/-o`、`--theme/-t`、`--mode/-m`、`--width/-w`、`--height`、`--max-height`、`--dpr`。
 
 ### 第四步：发布小红书笔记（可选）
 
 使用发布脚本将生成的图片发布到小红书：
 
 ```bash
-python scripts/publish_xhs.py --title "笔记标题" --desc "笔记描述" --images card_1.png card_2.png cover.png
+source .venv/bin/activate && python scripts/publish_xhs.py --title "笔记标题" --desc "笔记描述" --images cover.png card_1.png card_2.png
 ```
 
 **前置条件**：
