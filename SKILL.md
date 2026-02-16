@@ -22,10 +22,10 @@ description: 小红书笔记素材创作技能。当用户需要创建小红书�
 **必须使用 venv 中的 Python 解释器**：
 
 ```bash
-# 技能目录下的 .venv
-/Users/ben/.claude/skills/Auto-Redbook-Skills/.venv/bin/python scripts/xxx.py
+# 使用项目目录下的 .venv
+.venv/bin/python scripts/xxx.py
 
-# 或者在技能目录下激活 venv 后执行
+# 或者激活 venv 后执行
 source .venv/bin/activate
 python scripts/xxx.py
 ```
@@ -35,7 +35,7 @@ python scripts/xxx.py
 如需安装新依赖：
 
 ```bash
-/Users/ben/.claude/skills/Auto-Redbook-Skills/.venv/bin/pip install <package>
+.venv/bin/pip install <package>
 ```
 
 ## 工作流程
@@ -138,7 +138,7 @@ subtitle: "对着抄作业就好了，一起变高效"
 
 ```bash
 # 使用 venv（Python 渲染需要依赖）
-/Users/ben/.claude/skills/Auto-Redbook-Skills/.venv/bin/python scripts/render_xhs.py <markdown_file> [options]
+.venv/bin/python scripts/render_xhs.py <markdown_file> [options]
 
 # 或使用 Node.js（无需 venv，推荐）
 node scripts/render_xhs.js <markdown_file> [options]
@@ -204,7 +204,7 @@ Node.js 参数与 Python 基本一致：`--output-dir/-o`、`--theme/-t`、`--mo
 
 ```bash
 # 必须使用 venv
-/Users/ben/.claude/skills/Auto-Redbook-Skills/.venv/bin/python scripts/publish_xhs.py --title "笔记标题" --desc "笔记描述" --images output/<slug>/cover.png output/<slug>/card_1.png output/<slug>/card_2.png
+.venv/bin/python scripts/publish_xhs.py --title "笔记标题" --desc "笔记描述" --images output/<slug>/cover.png output/<slug>/card_1.png output/<slug>/card_2.png
 ```
 
 **前置条件**：
@@ -250,10 +250,10 @@ XHS_COOKIE=your_cookie_string_here
 渲染完成后，**必须**在最后输出该笔记子文件夹的完整 Finder 链接，方便用户一键跳转查看生成的图片：
 
 ```
-📂 [点击打开笔记目录](file:///Users/ben/Developer/Auto-Redbook-Skills/output/<slug>)
+📂 [点击打开笔记目录](file://<当前工作目录的绝对路径>/output/<slug>)
 ```
 
-链接格式为 `file://<笔记子文件夹的绝对路径>`，使用 Markdown 超链接语法。
+链接格式为 `file://<笔记子文件夹的绝对路径>`，使用 Markdown 超链接语法。请根据实际工作目录拼接完整路径。
 
 ## 注意事项
 
