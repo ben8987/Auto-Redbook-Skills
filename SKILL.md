@@ -13,6 +13,31 @@ description: 小红书笔记素材创作技能。当用户需要创建小红书�
 - 用户提供资料需要转化为小红书风格内容时
 - 用户需要生成精美的图片卡片用于发布时
 
+## 环境配置
+
+本技能的 Python 脚本依赖项已安装在 `.venv` 虚拟环境中。
+
+### Python 脚本执行方式
+
+**必须使用 venv 中的 Python 解释器**：
+
+```bash
+# 技能目录下的 .venv
+/Users/ben/.claude/skills/Auto-Redbook-Skills/.venv/bin/python scripts/xxx.py
+
+# 或者在技能目录下激活 venv 后执行
+source .venv/bin/activate
+python scripts/xxx.py
+```
+
+### 依赖管理
+
+如需安装新依赖：
+
+```bash
+/Users/ben/.claude/skills/Auto-Redbook-Skills/.venv/bin/pip install <package>
+```
+
 ## 工作流程
 
 ### 第一步：撰写小红书笔记内容
@@ -36,7 +61,22 @@ description: 小红书笔记素材创作技能。当用户需要创建小红书�
 
 **注意：这里生成的 Markdown 文档是用于渲染卡片的，必须专门生成，禁止直接使用上一步的笔记正文内容。**
 
-生成 Markdown 文件后，使用 `open <file>.md` 打开给用户预览确认。
+#### 输出目录规则
+
+每篇笔记必须创建独立的子文件夹，避免覆盖之前的笔记：
+
+```
+output/<slug>/          # 例如 output/openclaw-openai/
+├── content.md          # Markdown 源文件
+├── cover.png           # 封面
+├── card_1.png          # 正文卡片
+├── card_2.png
+└── ...
+```
+
+- `<slug>` 为笔记主题的英文短标识（小写，用 `-` 连接），例如 `openclaw-openai`、`5-productivity-tools`
+- Markdown 文件统一命名为 `content.md`，保存在该子文件夹内
+- 渲染输出目录 `-o` 指向该子文件夹
 
 Markdown 文件应包含：
 
@@ -94,17 +134,20 @@ subtitle: "对着抄作业就好了，一起变高效"
 
 ### 第三步：渲染图片卡片
 
-将 Markdown 文档渲染为图片卡片。**必须激活 venv 环境运行**：
+将 Markdown 文档渲染为图片卡片。使用以下脚本渲染：
 
 ```bash
-source .venv/bin/activate && python scripts/render_xhs.py <markdown_file> -o output/ [options]
+# 使用 venv（Python 渲染需要依赖）
+/Users/ben/.claude/skills/Auto-Redbook-Skills/.venv/bin/python scripts/render_xhs.py <markdown_file> [options]
+
+# 或使用 Node.js（无需 venv，推荐）
+node scripts/render_xhs.js <markdown_file> [options]
 ```
 
-- **所有生成文件统一输出到 `output/` 目录**（Markdown 文件也保存在此）
+- 输出目录为笔记的独立子文件夹（如 `output/openclaw-openai/`）
 - 生成的图片包括：封面（cover.png）和正文卡片（card_1.png, card_2.png, ...）
-- **渲染完成后，使用 `open` 命令打开所有生成的图片给用户预览**
 
-#### 渲染参数（Python）
+#### 渲染参数
 
 | 参数 | 简写 | 说明 | 默认值 |
 |---|---|---|---|
@@ -137,17 +180,31 @@ source .venv/bin/activate && python scripts/render_xhs.py <markdown_file> -o out
 #### 常用示例
 
 ```bash
-# 推荐：playful-geometric 主题 + 手动分隔分页
-source .venv/bin/activate && python scripts/render_xhs.py output/content.md -o output/ -t playful-geometric -m separator
+# 1) 推荐：playful-geometric 主题 + 手动分隔分页
+python scripts/render_xhs.py output/my-topic/content.md -o output/my-topic/ -t playful-geometric -m separator
+
+# 2) 使用 Node.js 渲染
+node scripts/render_xhs.js output/my-topic/content.md -o output/my-topic/ -t playful-geometric -m separator
+
+# 3) 固定 1080x1440，自动缩放文字
+python scripts/render_xhs.py content.md -m auto-fit
+
+# 4) 自动切分分页（推荐：内容长短不稳定）
+python scripts/render_xhs.py content.md -m auto-split
+
+# 5) 动态高度
+python scripts/render_xhs.py content.md -m dynamic --max-height 4320
 ```
 
+Node.js 参数与 Python 基本一致：`--output-dir/-o`、`--theme/-t`、`--mode/-m`、`--width/-w`、`--height`、`--max-height`、`--dpr`。
 
 ### 第四步：发布小红书笔记（可选）
 
 使用发布脚本将生成的图片发布到小红书：
 
 ```bash
-source .venv/bin/activate && python scripts/publish_xhs.py --title "笔记标题" --desc "笔记描述" --images output/cover.png output/card_1.png output/card_2.png
+# 必须使用 venv
+/Users/ben/.claude/skills/Auto-Redbook-Skills/.venv/bin/python scripts/publish_xhs.py --title "笔记标题" --desc "笔记描述" --images output/<slug>/cover.png output/<slug>/card_1.png output/<slug>/card_2.png
 ```
 
 **前置条件**：
@@ -188,10 +245,22 @@ XHS_COOKIE=your_cookie_string_here
 - `assets/card.html` - 正文卡片 HTML 模板
 - `assets/styles.css` - 共用样式表
 
+## 完成后输出
+
+渲染完成后，**必须**在最后输出该笔记子文件夹的完整 Finder 链接，方便用户一键跳转查看生成的图片：
+
+```
+📂 [点击打开笔记目录](file:///Users/ben/Developer/Auto-Redbook-Skills/output/<slug>)
+```
+
+链接格式为 `file://<笔记子文件夹的绝对路径>`，使用 Markdown 超链接语法。
+
 ## 注意事项
 
-1. Markdown 文件应保存在工作目录，渲染后的图片也保存在工作目录
-2. 技能目录 (`md2Redbook/`) 仅存放脚本和模板，不存放用户数据
+1. 每篇笔记的 Markdown 文件和渲染图片保存在 `output/<slug>/` 独立子文件夹中，避免覆盖
+2. 技能目录仅存放脚本和模板，不存放用户数据
 3. 图片尺寸会根据内容自动调整，但保持 3:4 比例
 4. Cookie 有有效期限制，过期后需要重新获取
-5. 发布功能依赖 xhs 库，需要安装：`pip install xhs`
+5. **Python 脚本必须使用 `.venv` 中的解释器**，系统 Python 因 macOS 限制无法直接安装依赖
+6. **渲染**有两种方式：Node.js（推荐，无需 venv）或 Python（需要 venv）
+7. **发布**只有 Python 版本，必须使用 venv
